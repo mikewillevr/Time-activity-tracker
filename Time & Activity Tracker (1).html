@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Time & Activity Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f7f4ee;--card:#fffdf9;--ink:#26262a;--mute:#6f6e69;--line:#e6e1d6;--sage:#7d9378;--sage-d:#5f7a5a;--sage-l:#e8eee4;--shadow:0 1px 2px rgba(40,40,30,.05);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1d1b;--card:#262624;--ink:#ecebe6;--mute:#a09f98;--line:#3a3a36;--sage:#8fa88a;--sage-d:#a9c0a4;--sage-l:#2f3a2d}}
+:root[data-theme="dark"]{--bg:#1d1d1b;--card:#262624;--ink:#ecebe6;--mute:#a09f98;--line:#3a3a36;--sage:#8fa88a;--sage-d:#a9c0a4;--sage-l:#2f3a2d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:flex;min-height:100vh}
+.side{width:232px;flex:none;border-right:1px solid var(--line);padding:24px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;padding:0 10px 24px;font-size:16px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--sage);display:grid;place-items:center;color:#fff}
+.nav{display:flex;flex-direction:column;gap:2px}.grow{flex:1}
+.nb{display:flex;align-items:center;gap:11px;padding:9px 12px;border:0;background:none;border-radius:8px;color:var(--mute);cursor:pointer;text-align:left;width:100%}
+.nb:hover{background:var(--sage-l)}.nb.on{background:var(--sage-l);color:var(--sage-d);font-weight:600}
+.main{flex:1;min-width:0;padding:36px 44px 56px;max-width:1180px}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+h1{font:600 28px/1.2 Georgia,"Times New Roman",serif;margin:0 0 4px}h2{font-size:15px;margin:0;font-weight:600}
+.mute{color:var(--mute)}.sm{font-size:13px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);padding:9px 14px;border-radius:8px;cursor:pointer}
+.btn.p{background:var(--sage-d);border-color:var(--sage-d);color:#fff}.btn:hover{filter:brightness(.97)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-bottom:16px}.g2b{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stat .l{font-size:12.5px;color:var(--mute);display:flex;gap:7px;align-items:center}.stat .v{font-size:24px;font-weight:600;margin-top:6px}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block;flex:none}
+.cur{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;background:var(--sage-l);border-color:transparent}
+.clock{font:600 38px/1 ui-monospace,Menlo,monospace;letter-spacing:-1px}
+.live{width:8px;height:8px;border-radius:50%;background:var(--sage-d);display:inline-block;margin-right:6px;animation:p 2s infinite}@keyframes p{50%{opacity:.3}}
+.row{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line);align-items:flex-start}.row:first-of-type{border-top:0}
+.row .t{flex:1;min-width:0}.row b{font-weight:500}.tm{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+a.lk{color:var(--sage-d);font-size:13px;cursor:pointer;background:none;border:0;padding:0}
+.leg{display:flex;flex-direction:column;gap:7px;flex:1;font-size:13px}.leg div{display:flex;align-items:center;gap:8px}.leg span.n{flex:1}
+.bars{display:flex;align-items:flex-end;gap:12px;height:150px}.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;font-size:12px}
+.bar i{display:block;width:100%;max-width:34px;background:var(--sage);border-radius:5px 5px 2px 2px;opacity:.55}.bar.today i{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(30,30,25,.4);display:grid;place-items:center;padding:16px;z-index:20}
+.modal form,.modal .box{background:var(--card);border-radius:14px;padding:24px;width:100%;max-width:440px;border:1px solid var(--line)}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:12px}
+input,select,textarea{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.two{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ph{text-align:center;padding:80px 20px}
+@media(max-width:1000px){.g4{grid-template-columns:1fr 1fr}.g2,.g2b{grid-template-columns:1fr}.main{padding:24px 20px 48px}}
+@media(max-width:760px){.app{flex-direction:column}.side{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:10px;border-right:0;border-bottom:1px solid var(--line)}.brand{display:none}.nav{flex-direction:row}.nb{width:auto;white-space:nowrap}.nb span{display:none}.nb.on span{display:inline}.grow{display:none}.two{grid-template-columns:1fr}}
+</style></head><body><div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+const h=React.createElement,{useState,useEffect}=React;
+/* ---------- Sample data (swap for real records later) ---------- */
+const CATS=[["Professional","#6f8aa6"],["Personal Projects","#7d9378"],["Learning","#c4a05a"],["Health & Fitness","#b5736a"],["Personal & Home","#9a86a8"],["Leisure","#d08f6b"],["Rest","#8aa8a4"],["Other","#a5a299"]];
+const col=n=>(CATS.find(c=>c[0]===n)||[0,"#a5a299"])[1];
+/* ---------- Helpers ---------- */
+const fmt=m=>{const H=Math.floor(m/60),M=Math.round(m%60);return H?(M?H+"h "+M+"m":H+"h"):M+"m"};
+const pad=n=>String(n).padStart(2,"0");
+const clock=s=>pad(Math.floor(s/3600))+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60);
+/* ---------- Icons (Lucide paths) ---------- */
+const P={dash:"M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z",list:"M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",time:"M12 6v6l4 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",bar:"M12 20V10M18 20V4M6 20v-4",tag:"M12 2H2v10l9.3 9.3a1 1 0 0 0 1.4 0l8.6-8.6a1 1 0 0 0 0-1.4zM7 7h.01",gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z",plus:"M12 5v14M5 12h14",play:"M6 3l14 9-14 9z",pause:"M6 4h4v16H6zM14 4h4v16h-4z",stop:"M5 5h14v14H5z",clock:"M12 6v6l4 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",hash:"M4 9h16M4 15h16M10 3L8 21M16 3l-2 18",zap:"M13 2L3 14h9l-1 8 10-12h-9z",edit:"M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z",trash:"M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6",hourglass:"M5 22h14M5 2h14M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4A2 2 0 0 0 17 6.2V2"};
+const Ic=(n,s)=>h("svg",{width:s||18,height:s||18,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:1.8,strokeLinecap:"round",strokeLinejoin:"round","aria-hidden":true},h("path",{d:P[n]}));
+/* ---------- Components ---------- */
+const Sidebar=({view,set})=>{const it=(k,i,l)=>h("button",{key:k,className:"nb"+(view===k?" on":""),onClick:()=>set(k),"aria-current":view===k?"page":undefined},Ic(i),h("span",null,l));
+return h("aside",{className:"side"},h("div",{className:"brand"},h("div",{className:"logo"},Ic("clock",16)),"Timekeeper"),
+h("nav",{className:"nav"},it("dash","dash","Dashboard"),it("log","list","Activity Log"),it("tl","time","Timeline"),it("ins","bar","Insights")),
+h("div",{className:"grow"}),h("nav",{className:"nav"},it("cat","tag","Categories"),it("set","gear","Settings")))};
+const Stat=({icon,label,value,sub})=>h("div",{className:"card stat"},h("div",{className:"l"},Ic(icon,15),label),h("div",{className:"v"},value),h("div",{className:"sm mute"},sub));
+const Current=({act,secs,paused,onStart,onToggle,onStop,onCancel})=>act?
+h("div",{className:"card cur"},h("div",null,h("div",{className:"sm mute"},h("span",{className:"live",style:paused?{animation:"none",opacity:.4}:{}}),paused?"Paused":"In progress"),
+h("h2",{style:{fontSize:20,margin:"6px 0 4px"}},act.name),h("div",{className:"sm mute"},h("span",{className:"dot",style:{background:col(act.cat),marginRight:7}}),act.cat)),
+h("div",{className:"clock"},clock(secs)),
+h("div",{style:{display:"flex",gap:8}},h("button",{className:"btn",onClick:onToggle},Ic(paused?"play":"pause",16),paused?"Resume":"Pause"),h("button",{className:"btn",onClick:onCancel},"Cancel"),h("button",{className:"btn p",onClick:onStop},Ic("stop",16),"Stop & save")))
+:h("div",{className:"card cur"},h("div",null,h("h2",{style:{fontSize:20,marginBottom:4}},"Nothing running right now"),h("div",{className:"mute"},"Start an activity whenever you’re ready. Just one tap.")),h("button",{className:"btn p",onClick:onStart},Ic("play",16),"Start Activity"));
+const Donut=({data,total})=>{let off=0;const R=52,C=2*Math.PI*R;
+return h("div",{style:{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}},
+h("svg",{width:150,height:150,viewBox:"0 0 140 140",role:"img","aria-label":"Time by category"},h("g",{transform:"rotate(-90 70 70)"},data.map(d=>{const l=d.m/total*C,e=h("circle",{key:d.cat,cx:70,cy:70,r:R,fill:"none",stroke:col(d.cat),strokeWidth:18,strokeDasharray:(l-1.5)+" "+(C-l+1.5),strokeDashoffset:-off});off+=l;return e})),
+h("text",{x:70,y:68,textAnchor:"middle",fill:"var(--ink)",fontSize:17,fontWeight:600},fmt(total)),h("text",{x:70,y:85,textAnchor:"middle",fill:"var(--mute)",fontSize:10},"recorded")),
+h("div",{className:"leg"},data.map(d=>h("div",{key:d.cat},h("span",{className:"dot",style:{background:col(d.cat)}}),h("span",{className:"n"},d.cat),h("span",null,fmt(d.m)),h("span",{className:"mute",style:{width:36,textAlign:"right"}},Math.round(d.m/total*100)+"%")))))};
+const Week=({days})=>{const max=Math.max(...days.map(d=>d.m),1),tot=days.reduce((s,d)=>s+d.m,0);
+return h("div",{className:"card"},h("div",{className:"ch"},h("h2",null,"This week"),h("span",{className:"sm mute"},"Total ",h("b",{style:{color:"var(--ink)"}},fmt(tot)))),
+h("div",{className:"bars"},days.map(d=>h("div",{key:d.d,className:"bar"+(d.today?" today":"")},h("span",{className:"mute"},d.m?(d.m/60).toFixed(1):"–"),h("i",{style:{height:Math.max(d.m/max*100,d.m?4:2)+"%"}}),h("span",{className:d.today?"":"mute",style:d.today?{fontWeight:600}:{}},d.d)))))};
+/* ---------- Local storage (IndexedDB, versioned, non-destructive upgrades) ---------- */
+const slug=n=>n.toLowerCase().replace(/[^a-z]+/g,"-").replace(/-$/,"");
+const CN=id=>(CATS.find(c=>slug(c[0])===id)||["Other"])[0];
+const openDB=()=>new Promise((res,rej)=>{const r=indexedDB.open("timekeeper",1);
+r.onupgradeneeded=()=>{const d=r.result,n=d.objectStoreNames;if(!n.contains("activities"))d.createObjectStore("activities",{keyPath:"id"}).createIndex("startAt","startAt");if(!n.contains("categories"))d.createObjectStore("categories",{keyPath:"id"});if(!n.contains("timer"))d.createObjectStore("timer",{keyPath:"id"})};
+r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);r.onblocked=()=>rej(new Error("Database blocked by another tab"))});
+let _db;const getDB=()=>_db||(_db=openDB());
+const tx=async(s,m,f)=>{const d=await getDB();return new Promise((res,rej)=>{const t=d.transaction(s,m),o=f(t);t.oncomplete=()=>res(o&&o.result);t.onerror=t.onabort=()=>rej(t.error||new Error("Transaction failed"))})};
+const seed=async()=>{const n=await tx("categories","readonly",t=>t.objectStore("categories").count());if(!n){const ts=Date.now();await tx("categories","readwrite",t=>{CATS.forEach(c=>t.objectStore("categories").put({id:slug(c[0]),name:c[0],color:c[1],createdAt:ts,updatedAt:ts}))})}};
+/* ---------- Helpers ---------- */
+const uid=()=>crypto.randomUUID?crypto.randomUUID():"id"+Date.now()+Math.random().toString(36).slice(2);
+const dk=ms=>{const d=new Date(ms);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+const fmtT=ms=>new Date(ms).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+const dur=a=>Math.max(0,(a.endAt-a.startAt-(a.pausedMs||0))/60000);
+const fin=a=>({...a,duration:Math.max(0,a.endAt-a.startAt-(a.pausedMs||0))});
+const dlabel=ms=>dk(ms)===dk(Date.now())?"Today":new Date(ms).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const elapsedOf=(t,now)=>t.accMs+(t.status==="running"?now-t.resumedAt:0);
+const fromTimer=(t,end)=>({id:t.actId,title:t.title,catId:t.catId,notes:t.notes,startAt:t.startAt,endAt:end,pausedMs:Math.max(0,end-t.startAt-elapsedOf(t,end)),method:"timer",createdAt:end,updatedAt:end});
+const calc=f=>{if(!f.title.trim())return{m:"Please enter an activity name."};if(!f.date)return{m:"Please choose a date."};if(!f.start||!f.end)return{m:"Please enter both a start and an end time."};
+const s=new Date(f.date+"T"+f.start).getTime();let e=new Date(f.date+"T"+f.end).getTime();if(isNaN(s)||isNaN(e))return{m:"Those date or time values aren’t valid."};
+if(e===s)return{m:"Start and end can’t be the same time."};let x=false;if(e<s){e+=864e5;x=true}
+if(e>Date.now()+6e4)return{m:"The end time can’t be in the future."};return{s,e,x}};
+/* ---------- Components ---------- */
+const Opts=()=>CATS.map(c=>h("option",{key:c[0],value:slug(c[0])},c[0]));
+const Confirm=({t,b,y,n,onY,onN})=>h("div",{className:"modal",onClick:onN},h("div",{className:"box",role:"alertdialog",onClick:e=>e.stopPropagation()},h("h2",{style:{fontSize:18,marginBottom:8}},t),h("p",{className:"mute",style:{margin:"0 0 18px"}},b),h("div",{style:{display:"flex",justifyContent:"flex-end",gap:8}},h("button",{className:"btn",onClick:onN},n),h("button",{className:"btn p",onClick:onY},y))));
+const TimerForm=({onClose,onGo})=>{const[f,sf]=useState({title:"",catId:slug(CATS[0][0]),notes:""}),u=k=>e=>sf({...f,[k]:e.target.value});
+return h("div",{className:"modal",onClick:onClose},h("form",{onClick:e=>e.stopPropagation(),onSubmit:e=>{e.preventDefault();if(f.title.trim())onGo(f)}},
+h("h2",{style:{fontSize:18,marginBottom:16}},"Start activity"),
+h("label",null,"Activity name",h("input",{required:true,autoFocus:true,value:f.title,onChange:u("title"),placeholder:"What are you starting?"})),
+h("label",null,"Category",h("select",{value:f.catId,onChange:u("catId")},Opts())),
+h("label",null,"Notes (optional)",h("textarea",{rows:2,value:f.notes,onChange:u("notes")})),
+h("div",{style:{display:"flex",justifyContent:"flex-end",gap:8}},h("button",{type:"button",className:"btn",onClick:onClose},"Cancel"),h("button",{type:"submit",className:"btn p"},Ic("play",16),"Start"))))};
+const ActForm=({a,onClose,onSave})=>{
+const[f,sf]=useState(a?{title:a.title,catId:a.catId,date:dk(a.startAt),start:fmtT(a.startAt),end:fmtT(a.endAt),notes:a.notes||"",description:a.description||"",energy:a.energy||"",focus:a.focus||"",accomplishments:a.accomplishments||"",reflection:a.reflection||""}:{title:"",catId:slug(CATS[0][0]),date:dk(Date.now()),start:"",end:"",notes:"",description:"",energy:"",focus:"",accomplishments:"",reflection:""}),[er,setEr]=useState("");
+const u=k=>e=>{sf({...f,[k]:e.target.value});setEr("")},c=calc(f);
+const lvl=k=>h("select",{value:f[k],onChange:u(k)},h("option",{value:""},"–"),[1,2,3,4,5].map(n=>h("option",{key:n,value:n},n)));
+const submit=e=>{e.preventDefault();if(c.m){setEr(c.m);return}const ts=Date.now(),v={title:f.title.trim(),catId:f.catId,notes:f.notes.trim(),description:f.description.trim(),energy:+f.energy||null,focus:+f.focus||null,accomplishments:f.accomplishments.trim(),reflection:f.reflection.trim(),startAt:c.s,endAt:c.e};
+onSave(fin(a?{...a,...v,pausedMs:a.startAt===c.s&&a.endAt===c.e?a.pausedMs||0:0,updatedAt:ts}:{...v,id:uid(),method:"manual",pausedMs:0,createdAt:ts,updatedAt:ts}))};
+return h("div",{className:"modal",onClick:onClose},h("form",{style:{maxHeight:"92vh",overflowY:"auto"},onClick:e=>e.stopPropagation(),onSubmit:submit,noValidate:true},
+h("h2",{style:{fontSize:18,marginBottom:16}},a?"Edit activity":"Add activity"),
+h("label",null,"Activity name",h("input",{autoFocus:true,value:f.title,onChange:u("title"),placeholder:"e.g. Evening walk"})),
+h("label",null,"Category",h("select",{value:f.catId,onChange:u("catId")},Opts())),
+h("div",{className:"two"},h("label",null,"Date",h("input",{type:"date",value:f.date,onChange:u("date")})),h("label",null,"Start",h("input",{type:"time",value:f.start,onChange:u("start")})),h("label",null,"End",h("input",{type:"time",value:f.end,onChange:u("end")}))),
+c.x?h("div",{className:"sm mute",style:{margin:"-4px 0 10px"}},"Ends the next day ("+fmt((c.e-c.s)/60000)+")."):(c.s?h("div",{className:"sm mute",style:{margin:"-4px 0 10px"}},"Duration: "+fmt((c.e-c.s)/60000)):null),
+h("label",null,"Notes (optional)",h("textarea",{rows:2,value:f.notes,onChange:u("notes")})),
+h("details",{style:{marginBottom:12}},h("summary",{className:"sm",style:{cursor:"pointer",marginBottom:10}},"More details"),
+h("label",null,"Description",h("textarea",{rows:2,value:f.description,onChange:u("description")})),
+h("div",{className:"two",style:{gridTemplateColumns:"1fr 1fr"}},h("label",null,"Energy (1–5)",lvl("energy")),h("label",null,"Focus (1–5)",lvl("focus"))),
+h("label",null,"Accomplishments",h("textarea",{rows:2,value:f.accomplishments,onChange:u("accomplishments")})),
+h("label",null,"Reflection",h("textarea",{rows:2,value:f.reflection,onChange:u("reflection")}))),
+er?h("div",{role:"alert",className:"sm",style:{color:"#b5736a",marginBottom:10}},er):null,
+h("div",{style:{display:"flex",justifyContent:"flex-end",gap:8}},h("button",{type:"button",className:"btn",onClick:onClose},"Cancel"),h("button",{type:"submit",className:"btn p"},"Save activity"))))};
+const Entry=({a,full,onEdit,onDel})=>h("div",{className:"row"},h("span",{className:"dot",style:{background:col(CN(a.catId)),marginTop:7}}),
+h("div",{className:"t"},h("b",null,a.title),h("div",{className:"sm mute"},CN(a.catId)+(a.notes?" · "+a.notes:"")+(full?" · "+(a.method==="timer"?"Timer":"Manual"):""))),
+h("div",{className:"tm"},h("div",null,fmt(dur(a))),h("div",{className:"sm mute"},(full?dlabel(a.startAt)+" · ":"")+fmtT(a.startAt)+" – "+fmtT(a.endAt)+(dk(a.endAt)!==dk(a.startAt)?" (+1d)":""))),
+full?h("div",{style:{display:"flex",gap:4}},h("button",{className:"btn","aria-label":"Edit "+a.title,style:{padding:"6px 8px"},onClick:()=>onEdit(a)},Ic("edit",15)),h("button",{className:"btn","aria-label":"Delete "+a.title,style:{padding:"6px 8px"},onClick:()=>onDel(a)},Ic("trash",15))):null);
+const Placeholder=({title})=>h("div",{className:"card ph"},h("h2",{style:{fontSize:20,marginBottom:6}},title),h("div",{className:"mute"},"This section arrives in a later build."));
+const Log=({acts,fc,fd,setFc,setFd,onAdd,onEdit,onDel})=>{const L=acts.filter(a=>(!fc||a.catId===fc)&&(!fd||dk(a.startAt)===fd)).sort((a,b)=>b.startAt-a.startAt);
+return h(React.Fragment,null,h("div",{className:"hd"},h("div",null,h("h1",null,"Activity Log"),h("div",{className:"mute"},L.length+" of "+acts.length+" activities")),h("button",{className:"btn p",onClick:onAdd},Ic("plus",16),"Add activity")),
+h("div",{className:"card",style:{marginBottom:16,display:"flex",gap:12,flexWrap:"wrap",alignItems:"flex-end"}},
+h("label",{style:{margin:0,flex:"1 1 160px"}},"Date",h("input",{type:"date",value:fd,onChange:e=>setFd(e.target.value)})),
+h("label",{style:{margin:0,flex:"1 1 160px"}},"Category",h("select",{value:fc,onChange:e=>setFc(e.target.value)},h("option",{value:""},"All categories"),Opts())),
+(fc||fd)?h("button",{className:"btn",onClick:()=>{setFc("");setFd("")}},"Clear filters"):null),
+h("div",{className:"card"},L.length?L.map(a=>h(Entry,{key:a.id,a,full:true,onEdit,onDel})):h("div",{className:"mute"},acts.length?"No activities match these filters.":"No activities yet. Start a timer or add one manually.")))};
+function App(){
+const[view,setView]=useState("dash"),[acts,setActs]=useState([]),[tm,setTm]=useState(null),[ready,setReady]=useState(false),[err,setErr]=useState(""),[modal,setModal]=useState(null),[now,setNow]=useState(Date.now()),[fc,setFc]=useState(""),[fd,setFd]=useState(""),busy=React.useRef(false);
+const load=async()=>{try{await seed();const a=await tx("activities","readonly",t=>t.objectStore("activities").getAll()),t=await tx("timer","readonly",t=>t.objectStore("timer").get("current"));setActs(a||[]);setTm(t||null);setErr("")}catch(e){setErr("Local storage isn’t available, so nothing can be saved or loaded right now. ("+(e&&e.message||"unknown error")+")")}setReady(true)};
+const run=async f=>{if(busy.current)return;busy.current=true;try{await f();await load()}catch(e){setErr("That change couldn’t be saved: "+(e&&e.message||"storage error"))}finally{busy.current=false}};
+useEffect(()=>{load();const t=setInterval(()=>setNow(Date.now()),1000),v=()=>{setNow(Date.now());if(!document.hidden&&!busy.current)load()};document.addEventListener("visibilitychange",v);return()=>{clearInterval(t);document.removeEventListener("visibilitychange",v)}},[]);
+const newT=f=>{const n=Date.now();return{id:"current",actId:uid(),title:f.title.trim(),catId:f.catId,notes:f.notes.trim(),startAt:n,status:"running",accMs:0,resumedAt:n}};
+const startT=f=>{setModal(null);run(()=>tx(["activities","timer"],"readwrite",t=>{if(tm)t.objectStore("activities").put(fin(fromTimer(tm,Date.now())));t.objectStore("timer").put(newT(f))}))};
+const toggle=()=>tm&&run(()=>tx("timer","readwrite",t=>{const n=Date.now();t.objectStore("timer").put(tm.status==="running"?{...tm,status:"paused",accMs:tm.accMs+(n-tm.resumedAt),resumedAt:null}:{...tm,status:"running",resumedAt:n})}));
+const stopT=()=>tm&&run(()=>tx(["activities","timer"],"readwrite",t=>{t.objectStore("activities").put(fin(fromTimer(tm,Date.now())));t.objectStore("timer").delete("current")}));
+const cancelT=()=>{setModal(null);run(()=>tx("timer","readwrite",t=>{t.objectStore("timer").delete("current")}))};
+const saveA=a=>{setModal(null);run(()=>tx("activities","readwrite",t=>{t.objectStore("activities").put(a)}))};
+const delA=a=>{setModal(null);run(()=>tx("activities","readwrite",t=>{t.objectStore("activities").delete(a.id)}))};
+const td=dk(now),today=acts.filter(a=>dk(a.startAt)===td).sort((a,b)=>a.startAt-b.startAt),total=today.reduce((s,a)=>s+dur(a),0),by={};
+today.forEach(a=>{const n=CN(a.catId);by[n]=(by[n]||0)+dur(a)});
+const dist=Object.entries(by).map(([cat,m])=>({cat,m})).sort((a,b)=>b.m-a.m);
+const D=new Date(now),wd=(D.getDay()+6)%7,days=[0,1,2,3,4,5,6].map(i=>{const x=new Date(D.getFullYear(),D.getMonth(),D.getDate()-wd+i),k=dk(x);return{d:x.toLocaleDateString("en-GB",{weekday:"short"}),m:acts.filter(a=>dk(a.startAt)===k).reduce((s,a)=>s+dur(a),0),today:i===wd}});
+const recent=acts.slice().sort((a,b)=>b.startAt-a.startAt).slice(0,6);
+const hr=D.getHours(),dateStr=D.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const el=tm?elapsedOf(tm,now):0,tAct=tm?{name:tm.title,cat:CN(tm.catId)}:null;
+const titles={tl:"Timeline",ins:"Insights",cat:"Categories",set:"Settings"};
+const onStart=()=>setModal({k:"timer"}),onAdd=()=>setModal({k:"edit",a:null}),onEdit=a=>setModal({k:"edit",a}),onDel=a=>setModal({k:"del",a});
+return h("div",{className:"app"},h(Sidebar,{view,set:setView}),
+h("main",{className:"main"},
+err?h("div",{role:"alert",className:"card sm",style:{marginBottom:16,borderColor:"#b5736a"}},err):null,
+!ready?h("div",{className:"mute"},"Loading your activities…"):
+view==="log"?h(Log,{acts,fc,fd,setFc,setFd,onAdd,onEdit,onDel}):
+view!=="dash"?h(React.Fragment,null,h("h1",{style:{marginBottom:20}},titles[view]),h(Placeholder,{title:titles[view]})):
+h(React.Fragment,null,
+h("div",{className:"hd"},h("div",null,h("h1",null,hr<12?"Good morning":hr<18?"Good afternoon":"Good evening"),h("div",{className:"mute"},dateStr+(today.length?" · "+fmt(total)+" recorded so far.":" · Nothing recorded yet today."))),
+h("button",{className:"btn p",onClick:onAdd},Ic("plus",16),"Add activity")),
+h("div",{className:"g4"},
+h(Stat,{icon:"hourglass",label:"Recorded today",value:fmt(total),sub:"Across completed activities"}),
+h(Stat,{icon:"hash",label:"Activities",value:today.length,sub:"Logged today"}),
+h(Stat,{icon:"zap",label:"Most active category",value:dist[0]?dist[0].cat:"–",sub:dist[0]?fmt(dist[0].m)+" · "+Math.round(dist[0].m/total*100)+"%":"No data yet"}),
+h(Stat,{icon:"clock",label:"Current session",value:tm?(tm.status==="paused"?"Paused":"Active"):"Idle",sub:tm?tm.title:"Nothing running"})),
+h(Current,{act:tAct,secs:Math.floor(el/1000),paused:tm&&tm.status==="paused",onStart,onToggle:toggle,onStop:stopT,onCancel:()=>setModal({k:"cancel"})}),
+h("div",{className:"g2"},
+h("div",{className:"card"},h("div",{className:"ch"},h("h2",null,"Today’s activity"),h("button",{className:"lk",onClick:()=>setView("log")},"View Activity Log →")),today.length?today.map(a=>h(Entry,{key:a.id,a})):h("div",{className:"mute"},"Nothing recorded yet. Start a timer or add an activity.")),
+h("div",{style:{display:"flex",flexDirection:"column",gap:16}},
+h("div",{className:"card"},h("div",{className:"ch"},h("h2",null,"Time distribution")),dist.length&&total>0?h(Donut,{data:dist,total}):h("div",{className:"mute"},"Your breakdown will appear here.")),
+h(Week,{days}))),
+h("div",{className:"card"},h("div",{className:"ch"},h("h2",null,"Recent activity")),recent.length?recent.map(a=>h("div",{key:a.id,className:"row"},h("span",{className:"dot",style:{background:col(CN(a.catId)),marginTop:7}}),h("div",{className:"t"},h("b",null,a.title),h("div",{className:"sm mute"},CN(a.catId))),h("div",{className:"tm"},h("div",null,fmt(dur(a))),h("div",{className:"sm mute"},dlabel(a.startAt))))):h("div",{className:"mute"},"No activities yet."))),
+modal&&modal.k==="timer"?h(TimerForm,{onClose:()=>setModal(null),onGo:f=>tm?setModal({k:"conflict",f}):startT(f)}):null,
+modal&&modal.k==="conflict"?h(Confirm,{t:"A timer is already running",b:"“"+tm.title+"” is in progress. Stop and save it before starting “"+modal.f.title+"”?",y:"Stop, save and start new",n:"Keep current",onY:()=>startT(modal.f),onN:()=>setModal(null)}):null,
+modal&&modal.k==="cancel"?h(Confirm,{t:"Discard this session?",b:"The running session won’t be saved. This can’t be undone.",y:"Discard session",n:"Keep going",onY:cancelT,onN:()=>setModal(null)}):null,
+modal&&modal.k==="edit"?h(ActForm,{a:modal.a,onClose:()=>setModal(null),onSave:saveA}):null,
+modal&&modal.k==="del"?h(Confirm,{t:"Delete this activity?",b:"“"+modal.a.title+"” will be permanently removed.",y:"Delete",n:"Cancel",onY:()=>delA(modal.a),onN:()=>setModal(null)}):null));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+</script></body></html>
